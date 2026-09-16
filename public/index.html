@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kings Research · Outreach Brain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #17233a; --ink-soft: #4b5b72; --gold: #a8792a; --gold-soft: #f4ecdf;
+    --line: #dce0e6; --surface: #f5f6f8; --paper: #ffffff;
+    --ok: #2f7a55; --warn: #9a6a12; --bad: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--surface); color: var(--ink);
+    font: 14px/1.5 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  header { background: var(--ink); color: #fff; padding: 14px 24px; display: flex; align-items: baseline; gap: 14px; }
+  header h1 { font: 500 19px/1.2 'IBM Plex Serif', Georgia, serif; margin: 0; }
+  header .crest { color: var(--gold); }
+  header .meta { margin-left: auto; font-size: 12px; color: #c9d1dd; }
+  main { display: grid; grid-template-columns: 360px 1fr; gap: 20px; padding: 20px 24px 40px; max-width: 1400px; margin: 0 auto; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; padding: 14px; } }
+  .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+  aside .panel + .panel { margin-top: 14px; }
+  .step-head { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--gold); color: var(--gold);
+    font-size: 12px; font-weight: 600; display: grid; place-items: center; flex: none; }
+  .step-head h2 { font-size: 15px; font-weight: 600; margin: 0; }
+  label { display: block; font-size: 12.5px; color: var(--ink-soft); margin: 10px 0 4px; }
+  input[type=text], input[type=password], input[type=number], select {
+    width: 100%; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 7px 9px; }
+  input:focus-visible, select:focus-visible, button:focus-visible, .log li:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--ink); margin-top: 8px; }
+  .check input { margin-top: 3px; }
+  button { font: inherit; font-weight: 500; border-radius: 4px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--ink); background: #fff; color: var(--ink); }
+  button.primary { background: var(--ink); color: #fff; }
+  button:disabled { opacity: .45; cursor: default; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .hint { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
+  .msg { font-size: 13px; margin-top: 10px; padding: 8px 10px; border-radius: 4px; background: var(--surface); }
+  .msg.bad { color: var(--bad); } .msg.ok { color: var(--ok); }
+  .sa { font-size: 12px; background: var(--gold-soft); border-radius: 4px; padding: 8px 10px; margin-top: 10px; word-break: break-all; }
+  .count { font-size: 13px; margin-top: 10px; }
+  .count b { font-size: 22px; font-weight: 600; margin-right: 4px; }
+
+  .run-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .bar { flex: 1; min-width: 160px; height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+  .bar div { height: 100%; width: 0; background: var(--gold); transition: width .3s; }
+  .tally { display: flex; gap: 14px; font-size: 13px; }
+  .tally b { font-weight: 600; } .t-ok b { color: var(--ok); } .t-warn b { color: var(--warn); } .t-bad b { color: var(--bad); }
+  .workspace { display: grid; grid-template-columns: 280px 1fr; gap: 16px; margin-top: 14px; align-items: start; }
+  @media (max-width: 1100px) { .workspace { grid-template-columns: 1fr; } }
+  .log { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 6px; max-height: 70vh; overflow: auto; background: #fff; }
+  .log li { padding: 8px 10px; border-bottom: 1px solid var(--line); cursor: pointer; font-size: 13px; }
+  .log li:last-child { border-bottom: 0; }
+  .log li[aria-selected=true] { background: var(--gold-soft); }
+  .log .who { font-weight: 500; }
+  .log .st { font-size: 12px; } .s-ok { color: var(--ok); } .s-warn { color: var(--warn); } .s-bad { color: var(--bad); } .s-skip { color: var(--ink-soft); }
+  .empty { color: var(--ink-soft); font-size: 13px; padding: 24px; text-align: center; }
+
+  .detail h3 { font-size: 13px; font-weight: 600; color: var(--ink-soft); margin: 18px 0 6px; }
+  .detail h3:first-child { margin-top: 0; }
+  .decision { border-left: 3px solid var(--gold); padding: 4px 0 4px 12px; }
+  .decision .offer { font: 500 17px/1.35 'IBM Plex Serif', Georgia, serif; }
+  .decision p { margin: 6px 0 0; }
+  .facts { display: grid; grid-template-columns: 110px 1fr; gap: 4px 12px; font-size: 13px; margin-top: 10px; }
+  .facts dt { color: var(--ink-soft); } .facts dd { margin: 0; }
+  table.short { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.short td { border-top: 1px solid var(--line); padding: 6px 4px; vertical-align: top; }
+  table.short td.score { width: 56px; text-align: right; font-variant-numeric: tabular-nums; }
+  .email { border: 1px solid var(--line); border-radius: 6px; margin-top: 8px; background: #fff; }
+  .email-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--ink-soft); }
+  .email-head button { padding: 3px 10px; font-size: 12px; }
+  .email pre { margin: 0; padding: 10px 12px; white-space: pre-wrap; word-break: break-word; font: inherit; }
+  .subject { font-weight: 600; }
+  .issues { font-size: 13px; color: var(--warn); margin: 6px 0 0; padding-left: 18px; }
+  @media (prefers-reduced-motion: reduce) { .bar div { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="crest">Kings Research</span> Outreach Brain</h1>
+  <span class="meta" id="meta">Not connected</span>
+</header>
+
+<main>
+  <aside>
+    <section class="panel">
+      <div class="step-head"><span class="num">1</span><h2>Connect</h2></div>
+      <label for="pw">App password</label>
+      <input id="pw" type="password" autocomplete="current-password">
+      <div class="btns"><button class="primary" id="connectBtn">Connect</button></div>
+      <div id="connectMsg" class="msg" hidden></div>
+    </section>
+
+    <section class="panel">
+      <div class="step-head"><span class="num">2</span><h2>Choose the sheet and tab</h2></div>
+      <label for="sheet">Google Sheet link</label>
+      <input id="sheet" type="text" placeholder="https://docs.google.com/spreadsheets/d/...">
+      <div class="btns"><button id="loadTabsBtn" disabled>Load tabs</button></div>
+      <div id="saBox" class="sa" hidden></div>
+      <label for="tab">Tab</label>
+      <select id="tab" disabled></select>
+      <div class="grid3">
+        <div><label for="headerRow">Header row</label><input id="headerRow" type="number" min="1" value="1"></div>
+        <div><label for="startRow">From row</label><input id="startRow" type="number" min="2" placeholder="2"></div>
+        <div><label for="endRow">To row</label><input id="endRow" type="number" min="2" placeholder="end"></div>
+      </div>
+      <label class="check"><input type="checkbox" id="onlyEmpty" checked> Only rows with an empty E1 Body</label>
+      <label class="check"><input type="checkbox" id="skipSent" checked> Skip rows whose Status says Sent</label>
+      <label class="check"><input type="checkbox" id="skipLowFit" checked> Skip low-fit roles (students, assistants)</label>
+      <div class="grid2">
+        <div><label for="mode">Brain mode</label>
+          <select id="mode"><option value="deep">Deep (strategist, then writer)</option><option value="fast">Fast (one AI call)</option></select></div>
+        <div><label for="web">Web research</label>
+          <select id="web"><option value="fallback">When no news</option><option value="always">Always</option><option value="off">Off</option></select></div>
+      </div>
+      <div id="tabInfo" class="count"></div>
+    </section>
+
+    <section class="panel">
+      <div class="step-head"><span class="num">3</span><h2>Generate</h2></div>
+      <p class="hint">Preview writes nothing. Generate fills the sheet one row at a time; keep this page open while it runs.</p>
+      <div class="btns">
+        <button id="previewBtn" disabled>Preview first row</button>
+        <button class="primary" id="runBtn" disabled>Generate emails</button>
+        <button id="stopBtn" disabled>Stop</button>
+      </div>
+      <div id="runMsg" class="msg" hidden></div>
+    </section>
+  </aside>
+
+  <section class="panel">
+    <div class="run-head">
+      <div class="bar"><div id="barFill"></div></div>
+      <span id="progressText" class="hint">No run yet</span>
+      <div class="tally">
+        <span class="t-ok">Ready <b id="tOk">0</b></span>
+        <span class="t-warn">Review <b id="tWarn">0</b></span>
+        <span class="t-bad">Errors <b id="tBad">0</b></span>
+      </div>
+    </div>
+    <div class="workspace">
+      <ul class="log" id="log" role="listbox" aria-label="Processed rows"><li class="empty">Processed rows appear here.</li></ul>
+      <div class="detail" id="detail"><p class="empty">Preview a row to see how the brain decided what to pitch.</p></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const store = {
+  get: (k) => { try { return localStorage.getItem(k) || ''; } catch { return ''; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+};
+let health = null, inspectInfo = null, running = false, stopRequested = false;
+const results = new Map();
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function msg(el, text, kind) { el.hidden = !text; el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function api(path, body) {
+  const res = await fetch(path, {
+    method: body ? 'POST' : 'GET',
+    headers: { 'Content-Type': 'application/json', 'x-app-password': $('pw').value },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let data = {};
+  try { data = await res.json(); } catch {}
+  if (!res.ok && !('error' in data)) throw new Error(data.detail || `Request failed (${res.status})`);
+  return data;
+}
+
+function filterBody() {
+  return {
+    sheet: $('sheet').value.trim(), tab: $('tab').value,
+    header_row: Number($('headerRow').value) || 1, start_row: Number($('startRow').value) || 0,
+    end_row: Number($('endRow').value) || 0, only_empty: $('onlyEmpty').checked, skip_sent: $('skipSent').checked,
+  };
+}
+
+function setButtons() {
+  const ready = !!health && inspectInfo && inspectInfo.ok && inspectInfo.eligible_rows.length > 0;
+  $('previewBtn').disabled = running || !ready;
+  $('runBtn').disabled = running || !ready;
+  $('stopBtn').disabled = !running;
+  $('loadTabsBtn').disabled = running || !health;
+  $('tab').disabled = running || !$('tab').options.length;
+}
+
+async function connect() {
+  msg($('connectMsg'), 'Connecting…');
+  try {
+    health = await api('/api/health');
+    store.set('kr_pw', $('pw').value);
+    $('meta').textContent = `v${health.version} · ${health.model} · news window ${health.max_news_age_days} days`;
+    $('mode').value = health.mode; $('web').value = health.web_research;
+    const problems = [];
+    if (!health.gemini_key) problems.push('GEMINI_API_KEY is missing');
+    if (!health.service_account_email) problems.push(health.service_account_error || 'GOOGLE_SERVICE_ACCOUNT_JSON is missing');
+    msg($('connectMsg'), problems.length ? 'Connected, but: ' + problems.join('; ') : 'Connected.', problems.length ? 'bad' : 'ok');
+    if (health.service_account_email) {
+      $('saBox').hidden = false;
+      $('saBox').innerHTML = `Share your sheet with <b>${esc(health.service_account_email)}</b> as Editor.`;
+    }
+    if ($('sheet').value) loadTabs();
+  } catch (e) {
+    health = null; msg($('connectMsg'), e.message, 'bad');
+  }
+  setButtons();
+}
+
+async function loadTabs() {
+  if (!$('sheet').value.trim()) return;
+  $('tabInfo').textContent = 'Loading tabs…';
+  try {
+    const data = await api('/api/sheet/tabs', { sheet: $('sheet').value.trim() });
+    store.set('kr_sheet', $('sheet').value.trim());
+    const previous = store.get('kr_tab');
+    $('tab').innerHTML = data.tabs.map((t) => `<option>${esc(t.title)}</option>`).join('');
+    if (data.tabs.some((t) => t.title === previous)) $('tab').value = previous;
+    setButtons();
+    inspect();
+  } catch (e) {
+    $('tabInfo').innerHTML = `<div class="msg bad">${esc(e.message)}</div>`;
+  }
+}
+
+let inspectTimer;
+function inspectSoon() { clearTimeout(inspectTimer); inspectTimer = setTimeout(inspect, 400); }
+async function inspect() {
+  if (!$('tab').value) return;
+  store.set('kr_tab', $('tab').value);
+  $('tabInfo').textContent = 'Checking tab…';
+  try {
+    inspectInfo = await api('/api/sheet/inspect', filterBody());
+    if (!inspectInfo.ok) {
+      $('tabInfo').innerHTML = `<div class="msg bad">${esc(inspectInfo.message)}</div>`;
+    } else {
+      const add = inspectInfo.missing_output.length ? `<p class="hint">Will add columns: ${esc(inspectInfo.missing_output.join(', '))}</p>` : '';
+      const extra = (inspectInfo.has_dossier || inspectInfo.has_hooks) ? `<p class="hint">Dossier and Hooks columns found: the decision trail is written there too.</p>` : '';
+      $('tabInfo').innerHTML = `<b>${inspectInfo.eligible_rows.length}</b> rows to generate <span class="hint">of ${inspectInfo.total_rows}</span>${add}${extra}`;
+    }
+  } catch (e) {
+    inspectInfo = null; $('tabInfo').innerHTML = `<div class="msg bad">${esc(e.message)}</div>`;
+  }
+  setButtons();
+}
+
+function rowBody(row, write) {
+  const f = filterBody();
+  return { sheet: f.sheet, tab: f.tab, row, header_row: f.header_row, write, mode: $('mode').value, web_research: $('web').value, skip_low_fit: $('skipLowFit').checked };
+}
+
+function kindOf(r) {
+  if (r.error) return 's-bad';
+  if (r.skipped) return 's-skip';
+  return /^Ready/.test(r.status) ? 's-ok' : 's-warn';
+}
+
+function addLog(r) {
+  const log = $('log');
+  if (log.querySelector('.empty')) log.innerHTML = '';
+  results.set(String(r.row), r);
+  const li = document.createElement('li');
+  li.tabIndex = 0; li.dataset.row = r.row; li.setAttribute('role', 'option');
+  li.innerHTML = `<div class="who">Row ${r.row} · ${esc(r.label || '')}</div><div class="st ${kindOf(r)}">${esc(r.error || r.status || '')}</div>`;
+  li.addEventListener('click', () => select(r.row));
+  li.addEventListener('keydown', (e) => { if (e.key === 'Enter') select(r.row); });
+  log.prepend(li);
+}
+
+function select(row) {
+  document.querySelectorAll('.log li').forEach((li) => li.setAttribute('aria-selected', li.dataset.row === String(row)));
+  renderDetail(results.get(String(row)));
+}
+
+function emailBlock(title, body, subject) {
+  const id = 'c' + Math.random().toString(36).slice(2);
+  return `<div class="email"><div class="email-head"><span>${esc(title)}</span><button data-copy="${id}">Copy</button></div>
+    ${subject ? `<pre class="subject">${esc(subject)}</pre>` : ''}<pre id="${id}">${esc(body)}</pre></div>`;
+}
+
+function renderDetail(r) {
+  const d = $('detail');
+  if (!r) { d.innerHTML = '<p class="empty">Nothing selected.</p>'; return; }
+  if (r.error) { d.innerHTML = `<div class="msg bad">Row ${r.row}: ${esc(r.error)}</div>`; return; }
+  if (r.skipped) { d.innerHTML = `<div class="msg">Row ${r.row}: ${esc(r.status)}</div>`; return; }
+  const b = r.brief, p = r.persona, c = r.company;
+  const shortlist = (r.decision.candidates || []).map((cand, i) =>
+    `<tr><td>${i === b.candidate_index ? '<b>' : ''}${esc(cand.pillar_name)}${i === b.candidate_index ? '</b>' : ''}<br><span class="hint">${esc(cand.services.map((s) => s.name).join(' · '))}</span></td><td class="score">${cand.score}</td></tr>`).join('');
+  d.innerHTML = `
+    <h3>Decision</h3>
+    <div class="decision">
+      <div class="offer">${esc(b.pillar_name)} › ${esc(b.service)}</div>
+      <p>${esc(b.reasoning)}</p>
+      <dl class="facts">
+        <dt>Confidence</dt><dd>${Math.round(b.confidence * 100)}%</dd>
+        <dt>Persona</dt><dd>${esc(p.title)}: ${esc(p.function)}, ${esc(p.seniority)}, ${esc(p.buyer_role)} (fit ${p.fit})</dd>
+        <dt>Company</dt><dd>${esc(c.industry)}, ${c.b2c ? 'B2C' : 'B2B'}, ${esc(c.scale)}</dd>
+        <dt>Hook</dt><dd>${esc(b.hook_fact || 'Role-based angle, no news used')}</dd>
+        <dt>Bottleneck</dt><dd>${esc(b.role_bottleneck)}</dd>
+        <dt>Stake</dt><dd>${esc(b.business_stake)}</dd>
+      </dl>
+    </div>
+    <h3>Shortlist the brain chose from</h3>
+    <table class="short">${shortlist}</table>
+    <h3>Signal</h3><p class="hint">${esc(r.signal)}</p>
+    <h3>Status</h3><p class="${kindOf(r)}">${esc(r.status)}</p>
+    ${r.issues && r.issues.length ? `<ul class="issues">${r.issues.map((i) => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
+    <h3>Sequence</h3>
+    ${emailBlock('Email 1 · day 1', r.e1, r.subject)}
+    ${emailBlock('Email 2 · day 4', r.e2)}
+    ${emailBlock('Email 3 · day 8', r.e3)}
+    ${emailBlock('Email 4 · day 14', r.e4)}
+    <p class="hint">${r.llm_calls} AI calls · ${r.repairs} repair pass(es) · ${Object.entries(r.timings || {}).map(([k, v]) => `${k} ${v}s`).join(', ')}</p>`;
+  d.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', async () => {
+    const text = $(btn.dataset.copy).textContent;
+    try { await navigator.clipboard.writeText(text); btn.textContent = 'Copied'; } catch { btn.textContent = 'Copy failed'; }
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  }));
+}
+
+async function preview() {
+  await inspect();
+  if (!inspectInfo || !inspectInfo.eligible_rows.length) return;
+  const row = inspectInfo.eligible_rows[0];
+  running = true; setButtons();
+  msg($('runMsg'), `Researching and thinking about row ${row}. This usually takes 30 to 90 seconds.`);
+  try {
+    const r = await api('/api/row', rowBody(row, false));
+    r.row = r.row || row;
+    addLog(r); select(r.row);
+    msg($('runMsg'), r.fatal ? r.error : '', r.fatal ? 'bad' : '');
+  } catch (e) { msg($('runMsg'), e.message, 'bad'); }
+  running = false; setButtons();
+}
+
+async function run() {
+  await inspect();
+  if (!inspectInfo || !inspectInfo.eligible_rows.length) return;
+  const rows = inspectInfo.eligible_rows.slice();
+  const delay = (health.row_delay_seconds || 0) * 1000;
+  running = true; stopRequested = false; setButtons();
+  const tally = { ok: 0, warn: 0, bad: 0 };
+  const paint = (done) => {
+    $('barFill').style.width = `${Math.round((done / rows.length) * 100)}%`;
+    $('progressText').textContent = `${done} of ${rows.length}`;
+    $('tOk').textContent = tally.ok; $('tWarn').textContent = tally.warn; $('tBad').textContent = tally.bad;
+  };
+  paint(0);
+  msg($('runMsg'), 'Running. Keep this page open.');
+  for (let i = 0; i < rows.length; i++) {
+    if (stopRequested) { msg($('runMsg'), `Stopped after ${i} rows. Run again to continue where you left off.`); break; }
+    let r;
+    try { r = await api('/api/row', rowBody(rows[i], true)); }
+    catch (e) { r = { row: rows[i], error: e.message }; }
+    r.row = r.row || rows[i];
+    const k = kindOf(r);
+    if (k === 's-ok') tally.ok++; else if (k === 's-warn') tally.warn++; else if (k === 's-bad') tally.bad++;
+    addLog(r); paint(i + 1);
+    if (r.fatal) { msg($('runMsg'), r.error, 'bad'); break; }
+    if (i === rows.length - 1) msg($('runMsg'), 'Done. Check rows marked "Needs review" before sending.', 'ok');
+    else if (delay) await sleep(delay);
+  }
+  running = false; setButtons(); inspect();
+}
+
+$('connectBtn').addEventListener('click', connect);
+$('pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') connect(); });
+$('loadTabsBtn').addEventListener('click', loadTabs);
+$('sheet').addEventListener('keydown', (e) => { if (e.key === 'Enter') loadTabs(); });
+$('tab').addEventListener('change', inspect);
+['headerRow', 'startRow', 'endRow'].forEach((id) => $(id).addEventListener('input', inspectSoon));
+['onlyEmpty', 'skipSent'].forEach((id) => $(id).addEventListener('change', inspect));
+$('previewBtn').addEventListener('click', preview);
+$('runBtn').addEventListener('click', run);
+$('stopBtn').addEventListener('click', () => { stopRequested = true; $('stopBtn').disabled = true; msg($('runMsg'), 'Stopping after the current row…'); });
+
+$('pw').value = store.get('kr_pw');
+$('sheet').value = store.get('kr_sheet');
+if ($('pw').value) connect();
+setButtons();
+</script>
+</body>
+</html>
