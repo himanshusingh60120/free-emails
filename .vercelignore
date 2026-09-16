@@ -1,0 +1,9 @@
+tests/
+.env
+.env.local
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+service-account*.json
+README.md
